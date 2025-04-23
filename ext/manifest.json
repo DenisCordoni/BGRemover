@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "BGRemover",
+  "version": "1",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "action": {},
+  "background": {
+    "service_worker": "service worker/main.js",
+    "type": "module"
+  }
+}
