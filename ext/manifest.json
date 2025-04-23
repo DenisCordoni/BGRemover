@@ -4,11 +4,19 @@
   "version": "1",
   "permissions": [
     "tabs",
+    "downloads",
+    "downloads.shelf",
     "storage"
   ],
   "action": {},
   "background": {
     "service_worker": "service worker/main.js",
     "type": "module"
-  }
+  },
+  "content_scripts": [
+     {
+       "matches": ["https://www.phot.ai/user-activity?tool=background-replacer"],
+       "js": ["src/jquery364.js","content scripts/main.js"]
+     }
+   ]
 }
