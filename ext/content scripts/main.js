@@ -25,8 +25,16 @@ $(document).ready(async function() {
 	let selectors={
 		uploadWrapper: ".Styles_uploadBtnInputDiv__rucrS",
 		uploadBtn: "#inputFile",
-		mainDownloadBtn: ".styles_mainHeaderDownload__RpKfb",
-		subDownloadBtn: ".styles_downloadBtns__g4cL3"
+		mainDownloadBtn:  function() {
+			return([...document.querySelectorAll("button")].filter(function(e) {
+				return e.innerText.trim() === "Download";
+			}));			
+		},
+		subDownloadBtn: function() {
+			return([...document.querySelectorAll("button")].filter(function(e) {
+				return e.innerText.trim() === "Download now";
+			}));			
+		}
 	};
 
 	//prende il div che contiente il steso Upload e lo passa a getScreenCoordinates
@@ -83,13 +91,16 @@ $(document).ready(async function() {
 
 	let mainDownloadBtn = await waitForElementToAppear(selectors["mainDownloadBtn"]);
 
+	console.log(mainDownloadBtn);
+
 	console.log("bottone download principale comparso. Aspettiamo qualche secondo perché si carichi l'immagine");
 
-	await delay(15000);
+	await delay(30000); //questo qui va cambiato in base alla velocità della connessione.
+	                    //Anche se hai aspettato la comparsa del bottone, purtroppo devi aspettare pure la fine dell'upload
 
 	console.log("clicco sul bottone download principale");
 
-	mainDownloadBtn.click();
+	mainDownloadBtn[0].click();
 
 	await delay(1500);
 
@@ -97,7 +108,7 @@ $(document).ready(async function() {
 
 	console.log("clicco sul bottone secondario");
 
-	subDownloadBtn.click();
+	subDownloadBtn[0].click();
 
 	//il download sarà intercettato dal service worker che provvederà a fare il refresh della pagina
 
@@ -117,7 +128,13 @@ function waitForElementToAppear(selector,interval=1000,maxTrials=60) {
 
 		let handler = setInterval(function() {
 
-			let element = $(selector);
+			let element;
+			if(typeof(selector)=="string") {
+				element = $(selector);
+			}
+			else {
+				element = selector();
+			}
 			if(!element.length) {
 				maxTrials--;
 				if(!maxTrials) {
