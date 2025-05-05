@@ -22,6 +22,8 @@ $(document).ready(async function() {
 
 	}
 
+	let mainDownloadBtn;
+	let subDownloadBtn;
 	let selectors={
 		uploadWrapper: ".Styles_uploadBtnInputDiv__rucrS",
 		uploadBtn: "#inputFile",
@@ -30,11 +32,26 @@ $(document).ready(async function() {
 				return e.innerText.trim() === "Download";
 			}));			
 		},
-		subDownloadBtn: function() {
-			return([...document.querySelectorAll("button")].filter(function(e) {
-				return e.innerText.trim() === "Download now";
-			}));			
-		}
+		subDownloadBtn: (function() {
+
+			let trials=0;
+
+			return(function() {
+				if(trials>30) {
+					//riclicca il bottone principale dopo 30 tentativi
+					mainDownloadBtn.click();
+					trials=0;
+				}
+				else {
+					trials++;
+				}
+				//porca puttana troia maledetta
+				return([...document.querySelectorAll("button")].filter(function(e) {
+					return ((e.innerText.indexOf("Download")!=-1)&&(e.style.backgroundColor=='rgb(241, 241, 245)'));
+				}));			
+			});
+
+		})()
 	};
 
 	//prende il div che contiente il steso Upload e lo passa a getScreenCoordinates
@@ -89,26 +106,33 @@ $(document).ready(async function() {
 
 	console.log("filling avvenuto, aspettiamo che compaia il bottone di download principale");
 
-	let mainDownloadBtn = await waitForElementToAppear(selectors["mainDownloadBtn"]);
+	mainDownloadBtn = await waitForElementToAppear(selectors["mainDownloadBtn"]);
+	mainDownloadBtn = mainDownloadBtn[0];
 
 	console.log(mainDownloadBtn);
 
 	console.log("bottone download principale comparso. Aspettiamo qualche secondo perché si carichi l'immagine");
 
-	await delay(30000); //questo qui va cambiato in base alla velocità della connessione.
-	                    //Anche se hai aspettato la comparsa del bottone, purtroppo devi aspettare pure la fine dell'upload
+	await delay(15000);
 
 	console.log("clicco sul bottone download principale");
 
-	mainDownloadBtn[0].click();
+	mainDownloadBtn.click();
 
-	await delay(1500);
+	//il click del bottone principale avviene all'interno del selettore di quello secondario.
+	//Essendo proprio questo click a triggerare la comparsa del secondario, ha senso fare in
+	//questo modo invece che attendere un tempo stimato.
 
-	let subDownloadBtn = await waitForElementToAppear(selectors["subDownloadBtn"]);
+	subDownloadBtn = await waitForElementToAppear(selectors["subDownloadBtn"]);
+	subDownloadBtn = subDownloadBtn[0];
+
+	await delay(2000);
+
+	console.log(subDownloadBtn);
 
 	console.log("clicco sul bottone secondario");
 
-	subDownloadBtn[0].click();
+	subDownloadBtn.click();
 
 	//il download sarà intercettato dal service worker che provvederà a fare il refresh della pagina
 
@@ -136,11 +160,12 @@ function waitForElementToAppear(selector,interval=1000,maxTrials=60) {
 				element = selector();
 			}
 			if(!element.length) {
-				maxTrials--;
+				/*maxTrials--;
 				if(!maxTrials) {
 					reject("Il selettore "+selector+" non funziona più");
 					clearInterval(handler);
-				}
+				}*/
+				console.log("waiting for element to appear...");
 				return;
 			}
 
