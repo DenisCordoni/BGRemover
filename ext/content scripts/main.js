@@ -30,9 +30,29 @@ $(document).ready(async function() {
 	};
 
 	//prende il div che contiente il steso Upload e lo passa a getScreenCoordinates
-	let coordinates = getScreenCoordinates([...document.querySelectorAll("div")].filter(function(e) {
-		return e.innerText.trim() === "Upload";
-	})[0], browser_bar_height);
+
+	let uploadButton = await new Promise(function(resolve,reject) {
+
+		let handler = setInterval(function() {
+
+			let candidates = [...document.querySelectorAll("div")].filter(function(e) {
+				return e.innerText.trim() === "Upload";
+			});
+			if(!candidates.length) {
+					reject("Non trovo il pulsante upload");
+					clearInterval(handler);
+				return;
+			}
+
+			resolve(candidates[0]);
+			clearInterval(handler);
+
+		},
+		1000);
+
+	});
+
+	let coordinates = getScreenCoordinates(uploadButton, browser_bar_height);
 
 	console.log(coordinates);
 

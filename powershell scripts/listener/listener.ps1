@@ -1,5 +1,5 @@
 # Configurazione
-$folder = "E:\PNC_DRIVE_WRAPPER\Il mio Drive\PNC\Code\Chrome extensions\BGRemover\source\powershell scripts\listened"
+$folder = "C:\Users\cordo\Il mio Drive\PNC\Code\Chrome extensions\BGRemover\source\powershell scripts\listened"
 $scriptSecondario = "listened.ps1"
 $pathSecondario = Join-Path $folder $scriptSecondario
 
