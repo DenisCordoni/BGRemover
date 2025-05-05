@@ -39,6 +39,7 @@ export async function powershell_exec(folderHandle, scriptName, parameters) {
   const desFolderHandle = await getHandleFromPath(folderHandle, listened_script_folder_path);
   const desScriptHandle = await desFolderHandle.getFileHandle(listened, { create: true });
   const writable = await desScriptHandle.createWritable();
+  console.log(content);
   await writable.write(content);
   await writable.close();
 

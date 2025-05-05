@@ -14,6 +14,7 @@ const mem={
 };
 
 let images_root_full_path;
+let browser_bar_height;
 let images_root_handle;
 let images_root_picked=false;
 let powershell_root_picked=false;
@@ -70,6 +71,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
           }
 
+
+          if(request.type=="bbHeightReq") {
+
+
+            if(sender.tab.id==mem.tabIds.backgroundReplacerTab) {
+                sendResponse({height: browser_bar_height});
+                return;
+            }
+            sendResponse({authorized: false});
+            return;
+
+         }
+        
+
           if(request.type=="clickReq") {
 
 
@@ -113,7 +128,16 @@ $(document).ready(async function() {
       	e.preventDefault();					// Alcuni browser non mostrano più il messaggio personalizzato,
       	e.returnValue = ''; 				// ma il ritorno di questa funzione attiva comunque il prompt di conferma.
        										// Non necessario in tutti i browser, ma buona pratica
-    });  									// Stringa vuota necessaria per attivare il messaggio di conferma
+    });  
+    									// Stringa vuota necessaria per attivare il messaggio di conferma
+
+    $("#browser_bar_height_inserter").click(()=>{
+
+        browser_bar_height=prompt("Inserisci l'altezza della barra del browser in pixel");
+
+    });
+
+
 
     $("#images_root_inserter").click(()=>{
 

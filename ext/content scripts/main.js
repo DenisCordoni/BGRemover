@@ -9,6 +9,19 @@ $(document).ready(async function() {
 
 	console.log("Oh, let's go, I am authorized!");
 
+	response = await chrome.runtime.sendMessage({type: "bbHeightReq"});
+
+	let browser_bar_height = parseInt(response.height);
+
+	console.log("Altezza barra browser: "+browser_bar_height);
+
+	if(!browser_bar_height) {
+
+		alert("Non posso cliccare correttamente se l'altezza della barra non è definita!!");
+		return;
+
+	}
+
 	let selectors={
 		uploadWrapper: ".Styles_uploadBtnInputDiv__rucrS",
 		uploadBtn: "#inputFile",
@@ -16,10 +29,12 @@ $(document).ready(async function() {
 		subDownloadBtn: ".styles_downloadBtns__g4cL3"
 	};
 
-	let coordinates = getScreenCoordinates($(selectors["uploadWrapper"])[0]);
-	console.log(coordinates);
+	//prende il div che contiente il steso Upload e lo passa a getScreenCoordinates
+	let coordinates = getScreenCoordinates([...document.querySelectorAll("div")].filter(function(e) {
+		return e.innerText.trim() === "Upload";
+	})[0], browser_bar_height);
 
-	coordinates = {x: 877, y: 737};
+	console.log(coordinates);
 
 	response = await chrome.runtime.sendMessage({type: "clickReq", coordinates: coordinates});
 
@@ -103,19 +118,20 @@ function waitForElementToAppear(selector,interval=1000,maxTrials=60) {
 }
 
 
-function getScreenCoordinates(element) {
-  if (!element) {
-    console.warn("Elemento non definito");
-    return null;
-  }
+function getScreenCoordinates(element, browser_bar_height=86) {
 
-  const rect = element.getBoundingClientRect();
-
-  const screenX = window.screenX + rect.left;
-  const screenY = window.screenY + rect.top;
-
-  return {
-    x: screenX,
-    y: screenY
-  };
+	if (!element) {
+	  console.warn("Elemento non definito");
+	  return null;
+	}
+  
+	const rect = element.getBoundingClientRect();
+  
+	const screenX = Math.ceil(window.screenX + rect.left + rect.width/2);
+	const screenY = Math.ceil(window.screenY + rect.top + browser_bar_height + rect.height/2);
+  
+	return {
+	  x: screenX,
+	  y: screenY
+	};
 }
